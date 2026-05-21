@@ -1,0 +1,41 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('recipes', function (Blueprint $table) {
+            $table->id();
+
+            $table->string('external_id')->nullable()->unique();
+
+            $table->string('name_lv');
+            $table->string('name_en');
+
+            $table->text('description_lv');
+            $table->text('description_en');
+
+            $table->integer('calories');
+            $table->integer('proteins');  
+            $table->integer('fats');    
+            $table->integer('carbs');
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('recipes');
+    }
+};
