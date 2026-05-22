@@ -24,6 +24,26 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $goals = [
+            [
+                'lv' => 'Samazināt svaru',
+                'en' => 'Weight loss'
+            ],
+            [
+                'lv' => 'Palielināt muskuļu masu',
+                'en' => 'Mass gain'
+            ],
+            [
+                'lv' => 'Uzturēt formu',
+                'en' => 'Maintenance'
+            ]
+        ];
+
+        $randomGoal = fake()->randomElement($goals);
+        
+        // Случайный пол
+        $isMale = fake()->boolean();
+
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
@@ -33,6 +53,15 @@ class UserFactory extends Factory
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
+
+            'height' => fake()->numberBetween(155, 195),
+            'weight' => fake()->numberBetween(50, 110),
+            'gender_lv' => $isMale ? 'Vīrietis' : 'Sieviete',
+            'gender_en' => $isMale ? 'Male' : 'Female',
+            'goal_lv' => $randomGoal['lv'],
+            'goal_en' => $randomGoal['en'],
+            'role' => 'user', // по умолчанию все обычные пользователи
+            'is_blocked' => false,
         ];
     }
 
