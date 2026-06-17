@@ -167,22 +167,24 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                                     className="flex flex-col cursor-pointer justify-between bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 relative group"
                                 >
                                     <div className="relative w-full">
-                                        <div className="relative w-full flex flex-row items-center justify-between mb-4 " >
+                                        <div className="relative w-full flex flex-row items-center justify-between mb-4 gap-2">
+                                            {/* Кнопка открытия рецепта (Стрелочка) */}
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation(); // Останавливаем всплытие
                                                 }}
-                                                className="p-2 cursor-pointer bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xs rounded-full shadow-xs text-neutral-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition"
+                                                className="p-2 cursor-pointer bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xs rounded-full shadow-xs text-neutral-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition shrink-0"
                                                 title="Skatīt recepti"
                                             >
                                                 <ArrowUpRight className="size-4" />
                                             </button>
 
-
-                                            {/* Заголовок рецепта */}
-                                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white line-clamp-1 text-center">
-                                                {recipe.name_lv || recipe.name_en || 'Bez nosaukuma'}
-                                            </h2>
+                                            {/* Заголовок рецепта с ограничением ширины */}
+                                            <div className="flex-1 min-w-0 text-center">
+                                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white block truncate text-center" title={recipe.name_lv || recipe.name_en || 'Bez nosaukuma'}>
+                                                    {recipe.name_lv || recipe.name_en || 'Bez nosaukuma'}
+                                                </h2>
+                                            </div>
 
                                             {/* Кнопка добавления в избранное (Сердечко) */}
                                             <button
@@ -190,11 +192,10 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                                                     e.stopPropagation(); // Останавливаем всплытие, чтобы не триггерить div
                                                     toggleFavorite(recipe.id);
                                                 }}
-                                                className="p-2 cursor-pointer bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xs rounded-full shadow-xs text-neutral-400 hover:text-red-500 dark:hover:text-red-400 transition"
+                                                className="p-2 cursor-pointer bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xs rounded-full shadow-xs text-neutral-400 hover:text-red-500 dark:hover:text-red-400 transition shrink-0"
                                             >
                                                 <Heart className={`size-4 transition-colors ${recipe.is_favorite ? 'fill-red-500 text-red-500' : ''}`} />
                                             </button>
-
                                         </div>
                                         {/* Кнопка открытия рецепта (Стрелочка) */}
 
