@@ -232,21 +232,39 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                                             </div>
                                         </div>
 
-                                        {recipe.allergens && recipe.allergens.length > 0 && (
-                                            <div className="flex flex-wrap gap-1.5 pt-3 mt-3 border-t border-neutral-100 dark:border-neutral-800/40">
-                                                {recipe.allergens.map((allergen: Allergen) => (
-                                                    <span
-                                                        key={allergen.id}
-                                                        className="inline-flex items-center gap-1.5 bg-amber-50/60 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-200/40 dark:border-amber-900/30 shadow-2xs transition-colors duration-150"
-                                                    >
-                                                        <ShieldAlert className="size-3 text-amber-500 dark:text-amber-500 flex-shrink-0 stroke-[2.5]" />
-                                                        <span>
-                                                            {locale === 'lv' ? allergen.name_lv : allergen.name}
+                                        {recipe.allergens && recipe.allergens.length > 0 && (() => {
+                                            const MAX_VISIBLE = 2; // Сколько аллергенов показывать перед тем, как свернуть
+                                            const visibleAllergens = recipe.allergens.slice(0, MAX_VISIBLE);
+                                            const hiddenCount = recipe.allergens.length - MAX_VISIBLE;
+
+                                            return (
+                                                <div className="flex flex-wrap items-center gap-1.5 pt-3 mt-3 border-t border-neutral-100 dark:border-neutral-800/40">
+                                                    {/* Рендерим только видимые аллергены */}
+                                                    {visibleAllergens.map((allergen: Allergen) => (
+                                                        <span
+                                                            key={allergen.id}
+                                                            className="inline-flex items-center gap-1.5 bg-amber-50/60 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-200/40 dark:border-amber-900/30 shadow-2xs transition-colors duration-150"
+                                                            title={locale === 'lv' ? allergen.name_lv : allergen.name}
+                                                        >
+                                                            <ShieldAlert className="size-3 text-amber-500 dark:text-amber-500 flex-shrink-0 stroke-[2.5]" />
+                                                            <span className="truncate max-w-[80px]">
+                                                                {locale === 'lv' ? allergen.name_lv : allergen.name}
+                                                            </span>
                                                         </span>
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
+                                                    ))}
+
+                                                    {/* Счётчик оставшихся аллергенов */}
+                                                    {hiddenCount > 0 && (
+                                                        <span
+                                                            className="inline-flex items-center text-[11px] font-bold px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-md border border-neutral-200/50 dark:border-neutral-700/50 shadow-2xs cursor-help"
+                                                            title={recipe.allergens.slice(MAX_VISIBLE).map(a => locale === 'lv' ? a.name_lv : a.name).join(', ')}
+                                                        >
+                                                            +{hiddenCount}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             ))}
