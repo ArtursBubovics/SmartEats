@@ -26,9 +26,9 @@ class Recipe extends Model
         return $this->belongsToMany(Allergen::class, 'allergen_recipe')->withTimestamps();
     }
 
-    public function user_activity()
+    public function user_activities()
     {
-        return $this->belongsToMany(User::class, 'user_activity')->withTimestamps();
+        return $this->belongsToMany(User::class, 'user_activities')->withTimestamps();
     }
 
     public function favorite_recipes()
