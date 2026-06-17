@@ -1,6 +1,6 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, ChefHat, Clock, ShieldAlert, Scale, Utensils } from 'lucide-react';
+import { ArrowLeft, ChefHat, Clock, ShieldAlert, Scale } from 'lucide-react';
 
 // Описываем типы данных, которые прилетают из Laravel
 interface Allergen {
@@ -19,11 +19,7 @@ interface Recipe {
     proteins: number;
     fats: number;
     carbs: number;
-    goal_type: string;
     allergens?: Allergen[];
-    // Сюда можно добавить поля, если в будущем сделаешь шаг или ингредиенты массивами:
-    // preparation_time?: number;
-    // ingredients?: string[]; 
 }
 
 interface Props {
@@ -37,9 +33,80 @@ export default function RecipeView({ recipe, locale = 'lv', fromTab = 'all' }: P
     const recipeName = locale === 'lv' ? recipe.name_lv : recipe.name_en;
     const recipeDescription = locale === 'lv' ? recipe.description_lv : recipe.description_en;
 
+    const translations = {
+        lv: {
+            maintenance: 'Svara saglabāšana',
+            gain: 'Masas palielināšana',
+            loss: 'Svara samazināšana',
+            calories: 'Kalorijas',
+            proteins: 'Olbaltumvielas',
+            fats: 'Tauki',
+            carbs: 'Ogļhidrāti',
+            nutrients: 'Uzturvērtība',
+            stepsAndIngredients: 'Apraksts un sastāvdaļas',
+            noSteps: 'Apraksts un sastāvdaļas vēl nav pievienoti.',
+            backFavorites: 'Atpakaļ uz izlasi',
+            backHistory: 'Atpakaļ uz vēsturi',
+            backAll: 'Atpakaļ pie receptēm',
+            photo: 'Receptes foto'
+        },
+        en: {
+            maintenance: 'Weight Maintenance',
+            gain: 'Weight Gain',
+            loss: 'Weight Loss',
+            calories: 'Calories',
+            proteins: 'Proteins',
+            fats: 'Fats',
+            carbs: 'Carbs',
+            nutrients: 'Nutrition Facts',
+            stepsAndIngredients: 'Description & Ingredients',
+            noSteps: 'Description and ingredients have not been added yet.',
+            backFavorites: 'Back to favorites',
+            backHistory: 'Back to history',
+            backAll: 'Back to recipes',
+            photo: 'Recipe photo'
+        }
+    };
+
+    const t = translations[locale];
+
+    // АЛГОРИТМ: Автоматическое определение класса рецепта по БЖУ
+    const getAutoGoalType = (): string => {
+        const { calories, proteins, carbs } = recipe;
+
+        const proteinKcal = proteins * 4;
+        const carbsKcal = carbs * 4;
+
+        // 1. НАБОР МАССЫ: Блюдо должно быть сытным (>=500 ккал) И иметь высокую общую калорийность или упор на углеводы
+        if (calories >= 500 && (calories > 600 || (carbsKcal / calories) > 0.50)) {
+            return t.gain;
+        }
+
+        // 2. ПОХУДЕНИЕ: Легкое блюдо (<350 ккал) ИЛИ белок доминирует (>30% от энергии)
+        if (calories < 350 || (proteinKcal / calories) > 0.30) {
+            return t.loss;
+        }
+
+        return t.maintenance;
+    };
+
+    // Сначала инициализируем тип цели
+    const goalType = getAutoGoalType();
+
+    // Теперь безопасно вычисляем стили на основе уже созданной переменной goalType
+    const getBadgeStyles = () => {
+        if (goalType === t.gain) {
+            return 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900/30';
+        }
+        if (goalType === t.loss) {
+            return 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30';
+        }
+        return 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/30';
+    };
+
     return (
         <div className="py-6 px-4 sm:px-6 lg:px-8 w-full max-w-5xl mx-auto">
-            <Head title={recipeName || 'Receptes skats'} />
+            <Head title={recipeName || 'Recipe'} />
 
             {/* Кнопка назад */}
             <div className="mb-6">
@@ -49,32 +116,32 @@ export default function RecipeView({ recipe, locale = 'lv', fromTab = 'all' }: P
                 >
                     <ArrowLeft className="size-4" />
                     <span>
-                        {fromTab === 'favorites' && 'Atpakaļ uz izlasi'}
-                        {fromTab === 'history' && 'Atpakaļ uz vēsturi'}
-                        {fromTab === 'all' && 'Atpakaļ pie receptēm'}
+                        {fromTab === 'favorites' && t.backFavorites}
+                        {fromTab === 'history' && t.backHistory}
+                        {fromTab === 'all' && t.backAll}
                     </span>
                 </Link>
             </div>
 
             {/* ОСНОВНАЯ КАРТОЧКА РЕЦЕПТА */}
             <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 md:p-8 shadow-sm space-y-8">
-                
+
                 {/* ВЕРХНЯЯ ЧАСТЬ: Название и Заглушка Фото */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                    
+
                     {/* Фото по центру/слева */}
                     <div className="md:col-span-1 relative aspect-video md:aspect-square rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex items-center justify-center overflow-hidden">
                         <div className="flex flex-col items-center gap-2 text-neutral-400 dark:text-neutral-500">
                             <ChefHat className="size-12 stroke-[1.5]" />
-                            <span className="text-xs font-medium tracking-wide uppercase">Receptes foto</span>
+                            <span className="text-xs font-medium tracking-wide uppercase">{t.photo}</span>
                         </div>
                     </div>
 
-                    {/* Название, Цель и Аллергены */}
+                    {/* Название, Динамическая Цель и Аллергены */}
                     <div className="md:col-span-2 space-y-4">
                         <div className="space-y-1">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30">
-                                {recipe.goal_type || 'Vispārīgs'}
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all ${getBadgeStyles()}`}>
+                                {goalType}
                             </span>
                             <h1 className="text-2xl md:text-3xl font-black text-neutral-900 dark:text-white">
                                 {recipeName || 'Bez nosaukuma'}
@@ -101,27 +168,26 @@ export default function RecipeView({ recipe, locale = 'lv', fromTab = 'all' }: P
                 <hr className="border-neutral-100 dark:border-neutral-800/60" />
 
                 {/* ПАНЕЛЬ КБЖУ (Энергетическая ценность) */}
-                <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mb-3 flex items-center gap-1.5">
+                <div className="space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 flex items-center gap-1.5">
                         <Scale className="size-3.5" />
-                        Uzturvērtība
-                        <Scale className="size-3.5" />
+                        {t.nutrients}
                     </h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                         <div className="bg-neutral-50 dark:bg-neutral-800/40 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800/40">
-                            <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-bold tracking-wider">Kalorijas</span>
-                            <span className="text-xl font-black text-neutral-800 dark:text-neutral-200">{recipe.calories} <span className="text-xs font-normal">kcal</span></span>
+                            <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-bold tracking-wider">{t.calories}</span>
+                            <span className="text-xl font-black text-neutral-800 dark:text-white">{recipe.calories} <span className="text-xs font-normal text-neutral-500">kcal</span></span>
                         </div>
                         <div className="bg-neutral-50 dark:bg-neutral-800/40 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800/40">
-                            <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-bold tracking-wider">Olbaltumvielas</span>
+                            <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-bold tracking-wider">{t.proteins}</span>
                             <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">{recipe.proteins}g</span>
                         </div>
                         <div className="bg-neutral-50 dark:bg-neutral-800/40 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800/40">
-                            <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-bold tracking-wider">Tauki</span>
+                            <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-bold tracking-wider">{t.fats}</span>
                             <span className="text-lg font-black text-amber-600 dark:text-amber-400">{recipe.fats}g</span>
                         </div>
                         <div className="bg-neutral-50 dark:bg-neutral-800/40 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800/40">
-                            <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-bold tracking-wider">Ogļhidrāti</span>
+                            <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-bold tracking-wider">{t.carbs}</span>
                             <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">{recipe.carbs}g</span>
                         </div>
                     </div>
@@ -129,35 +195,16 @@ export default function RecipeView({ recipe, locale = 'lv', fromTab = 'all' }: P
 
                 <hr className="border-neutral-100 dark:border-neutral-800/60" />
 
-                {/* НИЖНЯЯ ЧАСТЬ: Ингредиенты и Инструкция */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                    
-                    {/* ЛЕВАЯ КОЛОНКА: Ингредиенты (1/3 ширины) */}
-                    <div className="space-y-3">
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-white flex items-center gap-2">
-                            <Utensils className="size-4 text-indigo-500" />
-                            Sastāvdaļas
-                        </h3>
-                        
-                        {/* Временная заглушка, пока ингредиенты хранятся в тексте или не разбиты */}
-                        <div className="p-4 bg-neutral-50 dark:bg-neutral-800/20 rounded-xl border border-neutral-100 dark:border-neutral-800 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                            Sastāvdaļu saraksts ir iekļauts pagatavošanas aprakstā vai tiks pievienots atsevišķi.
-                        </div>
-                    </div>
+                {/* НИЖНЯЯ ЧАСТЬ: ОБЩЕЕ ОКНО ДЛЯ ОПИСАНИЯ И ИНГРЕДИЕНТОВ */}
+                <div className="space-y-3">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-white flex items-center gap-2">
+                        <Clock className="size-4 text-emerald-500" />
+                        <span>{t.stepsAndIngredients}</span>
+                    </h3>
 
-                    {/* ПРАВАЯ КОЛОНКА: Описание и Шаги готовки (2/3 ширины) */}
-                    <div className="lg:col-span-2 space-y-3">
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-white flex items-center gap-2">
-                            <Clock className="size-4 text-emerald-500" />
-                            Pagatavošanas gaita
-                        </h3>
-                        
-                        {/* Текст описания рецепта из базы данных */}
-                        <div className="p-5 bg-neutral-50 dark:bg-neutral-800/20 rounded-xl border border-neutral-100 dark:border-neutral-800 text-base text-neutral-700 dark:text-neutral-300 whitespace-pre-line leading-relaxed font-normal">
-                            {recipeDescription || 'Apraksts vēl nav pievienots.'}
-                        </div>
+                    <div className="p-5 md:p-6 bg-neutral-50 dark:bg-neutral-800/20 rounded-xl border border-neutral-100 dark:border-neutral-800 text-base text-neutral-700 dark:text-neutral-300 whitespace-pre-line leading-relaxed font-normal">
+                        {recipeDescription || t.noSteps}
                     </div>
-
                 </div>
 
             </div>

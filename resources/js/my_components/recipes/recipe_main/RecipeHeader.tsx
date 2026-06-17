@@ -24,7 +24,7 @@ export default function RecipeHeader({ activeTab }: RecipeHeaderProps) {
 
     return (
         <div className="mb-8">
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-950 dark:text-white transition-all duration-200">
+            <h1 className="text-3xl font-medium tracking-tight text-gray-950 dark:text-white transition-all duration-200">
                 {currentHeader.title}
             </h1>
             <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 transition-all duration-200">

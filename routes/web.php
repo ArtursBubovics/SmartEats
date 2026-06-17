@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/favorites/{recipe}', [RecipeController::class, 'show'])->name('show.favorites');
         Route::get('/history/{recipe}', [RecipeController::class, 'show'])->name('show.history');
 
+        Route::post('/{id}/view', [RecipeController::class, 'addToHistory']);
+
         // 5. Роут для самого сердечка (POST-запрос для добавления/удаления из избранного)
         Route::post('/{recipe}/favorite', [RecipeController::class, 'toggleFavorite'])->name('favorite');
     });

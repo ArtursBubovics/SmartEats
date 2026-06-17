@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Recipe;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RecipeController extends Controller
 {
@@ -117,5 +119,37 @@ class RecipeController extends Controller
             'locale' => app()->getLocale(),
             'fromTab' => $fromTab
         ]);
+    }
+
+    public function addToHistory(Request $request, $id)
+    {
+        $userId = Auth::id();
+        $currentTab = $request->input('tab', 'all'); // получаем 'all', 'favorites' или 'history'
+
+        // 1. Записываем или обновляем историю в базе данных
+        if ($userId) {
+            DB::table('user_activities')->updateOrInsert(
+                [
+                    'user_id'   => $userId,
+                    'recipe_id' => $id
+                ],
+                [
+                    // created_at запишется только при первой вставке
+                    'created_at' => now(),
+                    // updated_at будет обновляться при каждом клике/просмотре
+                    'updated_at' => now(),
+                ]
+            );
+        }
+
+        // 2. Определяем, на какой именно роут редиректить пользователя
+        $routeName = match ($currentTab) {
+            'favorites' => 'recipes.show.favorites',
+            'history'   => 'recipes.show.history',
+            default     => 'recipes.show.all',
+        };
+
+        // 3. Делаем редирект. Inertia сама подхватит его и откроет нужную страницу
+        return redirect()->route($routeName, ['recipe' => $id]);
     }
 }

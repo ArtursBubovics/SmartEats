@@ -81,6 +81,12 @@ export default function Index({ recipes, currentTab }: IndexProps) {
         });
     }
 
+    const handleRecipeClick = (recipeId: number) => {
+        router.post(`/recipes/${recipeId}/view`, {
+            tab: currentTab
+        });
+    };
+
     return (
         <div className="py-6 px-4 sm:px-6 lg:px-8 w-full max-w-none">
             {/* Верхний заголовок страницы */}
@@ -112,7 +118,6 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                         <Heart className={`size-3.5 ${currentTab === 'favorites' ? 'fill-indigo-600/10 dark:fill-indigo-400/10 text-indigo-600 dark:text-indigo-400' : ''}`} />
                         <span>Izlase</span>
                     </Link>
-
                     {/* Ссылка: Vēsture (/recipes/history) */}
                     <Link
                         href="/recipes/history"
@@ -157,7 +162,7 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {filteredRecipes.map((recipe: Recipe) => (
                                 <div
-                                    onClick={() => router.get(`/recipes/${currentTab}/${recipe.id}`)}
+                                    onClick={() => handleRecipeClick(recipe.id)}
                                     key={recipe.id}
                                     className="flex flex-col cursor-pointer justify-between bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 relative group"
                                 >
@@ -202,7 +207,7 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                                             </div>
                                         </div>
                                     </div>
-                                                
+
                                     {/* Блок КБЖУ и Аллергены */}
                                     <div>
                                         <div className="border-t border-neutral-100 dark:border-neutral-800/60 pt-4 mb-4">
