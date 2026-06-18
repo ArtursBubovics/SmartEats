@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { ChefHat, History, Heart, LayoutGrid, ShieldAlert, ArrowUpRight } from 'lucide-react';
-import { Link, router } from '@inertiajs/react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ChefHat, History, Heart, LayoutGrid, ShieldAlert, ArrowUpRight, Undo2 } from 'lucide-react'; import { Link, router } from '@inertiajs/react';
 import RecipeHeader from '@/my_components/recipes/recipe_main/RecipeHeader';
 import RecipeFilters from '@/my_components/recipes/recipe_main/RecipeFilters';
-
+import { getRecipeGoalType, getGoalBadgeStyles } from '@/utils/recipeHelpers';
 interface Allergen {
     id: number;
     name_lv?: string;
@@ -35,13 +34,54 @@ export default function Index({ recipes, currentTab }: IndexProps) {
     const [maxCalories, setMaxCalories] = useState<number>(1000);
     const [sortBy, setSortBy] = useState('name');
 
+    const [selectedGoal, setSelectedGoal] = useState<string>('all');
+    const [selectedAllergens, setSelectedAllergens] = useState<number[]>([]);
+
     const [localRecipes, setLocalRecipes] = useState<Recipe[]>(recipes);
+
+    const [flippedRecipes, setFlippedRecipes] = useState<number[]>([]);
+
+    // Функция для переключения стороны конкретной карточки
+    const toggleFlip = (id: number) => {
+        setFlippedRecipes(prev =>
+            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+        );
+    };
 
     useEffect(() => {
         setLocalRecipes(recipes);
     }, [recipes]);
 
     const locale = (typeof navigator !== 'undefined' && navigator.language && navigator.language.startsWith('lv')) ? 'lv' : 'en';
+
+    const availableAllergens = useMemo(() => {
+        const map = new Map<number, Allergen>();
+        recipes.forEach(recipe => {
+            recipe.allergens?.forEach(allergen => {
+                if (!map.has(allergen.id)) {
+                    map.set(allergen.id, allergen);
+                }
+            });
+        });
+        return Array.from(map.values());
+    }, [recipes]);
+
+    // Локализация для бейджей целей
+    const translations = {
+        lv: {
+            maintenance: 'Svara saglabāšana',
+            gain: 'Masas palielināšana',
+            loss: 'Svara samazināšana',
+            allergensTitle: 'Alergēni:',
+        },
+        en: {
+            maintenance: 'Weight Maintenance',
+            gain: 'Weight Gain',
+            loss: 'Weight Loss',
+            allergensTitle: 'Allergens:',
+        }
+    };
+    const t = translations[locale];
 
     // Фильтруем и сортируем локальный стейт рецептов
     const filteredRecipes = localRecipes
@@ -50,7 +90,13 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                 recipe.name_en.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesCalories = recipe.calories <= maxCalories;
 
-            return matchesSearch && matchesCalories;
+            const matchesGoal = selectedGoal === 'all' || getRecipeGoalType(recipe) === selectedGoal;
+
+            const matchesAllergens = selectedAllergens.length === 0 || !recipe.allergens?.some(
+                (allergen) => selectedAllergens.includes(allergen.id)
+            );
+
+            return matchesSearch && matchesCalories && matchesGoal && matchesAllergens;
         })
         .sort((a, b) => {
             if (sortBy === 'name') return a.name_lv.localeCompare(b.name_lv);
@@ -145,6 +191,11 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                         setMaxCalories={setMaxCalories}
                         sortBy={sortBy}
                         setSortBy={setSortBy}
+                        selectedGoal={selectedGoal}
+                        setSelectedGoal={setSelectedGoal}
+                        availableAllergens={availableAllergens}
+                        selectedAllergens={selectedAllergens}
+                        setSelectedAllergens={setSelectedAllergens}
                     />
                 )}
 
@@ -160,116 +211,193 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                            {filteredRecipes.map((recipe: Recipe) => (
-                                <div
-                                    onClick={() => handleRecipeClick(recipe.id)}
-                                    key={recipe.id}
-                                    className="flex flex-col cursor-pointer justify-between bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 relative group"
-                                >
-                                    <div className="relative w-full">
-                                        <div className="relative w-full flex flex-row items-center justify-between mb-4 gap-2">
-                                            {/* Кнопка открытия рецепта (Стрелочка) */}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // Останавливаем всплытие
-                                                }}
-                                                className="p-2 cursor-pointer bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xs rounded-full shadow-xs text-neutral-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition shrink-0"
-                                                title="Skatīt recepti"
+                            {filteredRecipes.map((recipe: Recipe) => {
+                                const goalKey = getRecipeGoalType(recipe);
+                                const isFlipped = flippedRecipes.includes(recipe.id);
+                                return (
+                                    <div
+                                        key={recipe.id}
+                                        className="w-full min-h-[460px] [perspective:1000px] cursor-pointer group"
+                                    >
+                                        <div
+                                            onClick={() => handleRecipeClick(recipe.id)}
+                                            className={`relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''
+                                                }`}
+
+                                        >
+                                            {/* ================= ЛИЦЕВАЯ СТОРОНА ================= */}
+                                            <div
+                                                onClick={() => handleRecipeClick(recipe.id)}
+                                                className={`relative inset-0 w-full h-full [backface-visibility:hidden] flex flex-col justify-between bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer ${isFlipped ? 'pointer-events-none' : ''
+                                                    }`}
                                             >
-                                                <ArrowUpRight className="size-4" />
-                                            </button>
+                                                <div className="relative w-full">
+                                                    <div className="relative w-full flex flex-row items-center justify-between mb-4 gap-2">
 
-                                            {/* Заголовок рецепта с ограничением ширины */}
-                                            <div className="flex-1 min-w-0 text-center">
-                                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white block truncate text-center" title={recipe.name_lv || recipe.name_en || 'Bez nosaukuma'}>
-                                                    {recipe.name_lv || recipe.name_en || 'Bez nosaukuma'}
-                                                </h2>
-                                            </div>
-
-                                            {/* Кнопка добавления в избранное (Сердечко) */}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // Останавливаем всплытие, чтобы не триггерить div
-                                                    toggleFavorite(recipe.id);
-                                                }}
-                                                className="p-2 cursor-pointer bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xs rounded-full shadow-xs text-neutral-400 hover:text-red-500 dark:hover:text-red-400 transition shrink-0"
-                                            >
-                                                <Heart className={`size-4 transition-colors ${recipe.is_favorite ? 'fill-red-500 text-red-500' : ''}`} />
-                                            </button>
-                                        </div>
-                                        {/* Кнопка открытия рецепта (Стрелочка) */}
-
-
-                                        {/* Поле для ФОТО по центру */}
-                                        <div className="relative w-full aspect-video mb-5 rounded-lg bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex items-center justify-center overflow-hidden">
-                                            <div className="flex flex-col items-center gap-2 text-neutral-400 dark:text-neutral-500 group-hover:scale-105 transition duration-200">
-                                                <ChefHat className="size-10 stroke-[1.5]" />
-                                                <span className="text-xs font-medium tracking-wide uppercase">Receptes foto</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Блок КБЖУ и Аллергены */}
-                                    <div>
-                                        <div className="border-t border-neutral-100 dark:border-neutral-800/60 pt-4 mb-4">
-                                            <div className="grid grid-cols-4 gap-2 text-center">
-                                                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
-                                                    <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Kcal</span>
-                                                    <span className="text-base font-bold text-neutral-800 dark:text-neutral-200">{recipe.calories}</span>
-                                                </div>
-                                                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
-                                                    <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Olbalt.</span>
-                                                    <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{recipe.proteins}g</span>
-                                                </div>
-                                                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
-                                                    <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Tauki</span>
-                                                    <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{recipe.fats}g</span>
-                                                </div>
-                                                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
-                                                    <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Ogļh.</span>
-                                                    <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{recipe.carbs}g</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {recipe.allergens && recipe.allergens.length > 0 && (() => {
-                                            const MAX_VISIBLE = 2; // Сколько аллергенов показывать перед тем, как свернуть
-                                            const visibleAllergens = recipe.allergens.slice(0, MAX_VISIBLE);
-                                            const hiddenCount = recipe.allergens.length - MAX_VISIBLE;
-
-                                            return (
-                                                <div className="flex flex-wrap items-center gap-1.5 pt-3 mt-3 border-t border-neutral-100 dark:border-neutral-800/40">
-                                                    {/* Рендерим только видимые аллергены */}
-                                                    {visibleAllergens.map((allergen: Allergen) => (
-                                                        <span
-                                                            key={allergen.id}
-                                                            className="inline-flex items-center gap-1.5 bg-amber-50/60 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-200/40 dark:border-amber-900/30 shadow-2xs transition-colors duration-150"
-                                                            title={locale === 'lv' ? allergen.name_lv : allergen.name}
+                                                        {/* Кнопка переворота (вместо обычной стрелочки ставим вызов toggleFlip) */}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // Не переходим на страницу рецепта
+                                                                toggleFlip(recipe.id); // Переворачиваем на оборот!
+                                                            }}
+                                                            className="p-2 cursor-pointer bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xs rounded-full shadow-xs text-neutral-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition shrink-0"
+                                                            title="Skatīt aprakstu"
                                                         >
-                                                            <ShieldAlert className="size-3 text-amber-500 dark:text-amber-500 flex-shrink-0 stroke-[2.5]" />
-                                                            <span className="truncate max-w-[80px]">
-                                                                {locale === 'lv' ? allergen.name_lv : allergen.name}
+                                                            <ArrowUpRight className="size-4" />
+                                                        </button>
+
+                                                        {/* Заголовок рецепта */}
+                                                        <div className="flex-1 min-w-0 text-center">
+                                                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white block truncate text-center" title={recipe.name_lv || recipe.name_en || 'Bez nosaukuma'}>
+                                                                {recipe.name_lv || recipe.name_en || 'Bez nosaukuma'}
+                                                            </h2>
+                                                        </div>
+
+                                                        {/* Сердечко */}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                toggleFavorite(recipe.id);
+                                                            }}
+                                                            className="p-2 cursor-pointer bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xs rounded-full shadow-xs text-neutral-400 hover:text-red-500 dark:hover:text-red-400 transition shrink-0"
+                                                        >
+                                                            <Heart className={`size-4 transition-colors ${recipe.is_favorite ? 'fill-red-500 text-red-500' : ''}`} />
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Поле для ФОТО */}
+                                                    <div className="relative w-full aspect-video mb-5 rounded-lg bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex items-center justify-center overflow-hidden">
+                                                        <div className="flex flex-col items-center gap-2 text-neutral-400 dark:text-neutral-500 group-hover:scale-105 transition duration-200">
+                                                            <ChefHat className="size-10 stroke-[1.5]" />
+                                                            <span className="text-xs font-medium tracking-wide uppercase">Receptes foto</span>
+                                                        </div>
+                                                        <div className="absolute top-0 right-0 pt-2 pr-2">
+                                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all ${getGoalBadgeStyles(goalKey)}`}>
+                                                                {t[goalKey]}
                                                             </span>
-                                                        </span>
-                                                    ))}
-
-                                                    {/* Счётчик оставшихся аллергенов */}
-                                                    {hiddenCount > 0 && (
-                                                        <span
-                                                            className="inline-flex items-center text-[11px] font-bold px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-md border border-neutral-200/50 dark:border-neutral-700/50 shadow-2xs cursor-help"
-                                                            title={recipe.allergens.slice(MAX_VISIBLE).map(a => locale === 'lv' ? a.name_lv : a.name).join(', ')}
-                                                        >
-                                                            +{hiddenCount}
-                                                        </span>
-                                                    )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            );
-                                        })()}
+
+                                                {/* Блок КБЖУ и Аллергены */}
+                                                <div>
+                                                    <div className="border-t border-neutral-100 dark:border-neutral-800/60 pt-4 mb-4">
+                                                        <div className="grid grid-cols-4 gap-2 text-center">
+                                                            <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
+                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Kcal</span>
+                                                                <span className="text-base font-bold text-neutral-800 dark:text-neutral-200">{recipe.calories}</span>
+                                                            </div>
+                                                            <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
+                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Olbalt.</span>
+                                                                <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{recipe.proteins}g</span>
+                                                            </div>
+                                                            <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
+                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Tauki</span>
+                                                                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{recipe.fats}g</span>
+                                                            </div>
+                                                            <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
+                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Ogļh.</span>
+                                                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{recipe.carbs}g</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Твой блок с циклом аллергенов */}
+                                                    {recipe.allergens && recipe.allergens.length > 0 && (() => {
+                                                        const MAX_VISIBLE = 2;
+                                                        const visibleAllergens = recipe.allergens.slice(0, MAX_VISIBLE);
+                                                        const hiddenCount = recipe.allergens.length - MAX_VISIBLE;
+
+                                                        return (
+                                                            <div className="flex flex-wrap items-center gap-1.5 pt-3 mt-3 border-t border-neutral-100 dark:border-neutral-800/40">
+                                                                {visibleAllergens.map((allergen: Allergen) => (
+                                                                    <span key={allergen.id} className="inline-flex items-center gap-1.5 bg-amber-50/60 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-200/40 dark:border-amber-900/30 shadow-2xs">
+                                                                        <ShieldAlert className="size-3 text-amber-500 dark:text-amber-500 flex-shrink-0 stroke-[2.5]" />
+                                                                        <span className="truncate max-w-[80px]">{locale === 'lv' ? allergen.name_lv : allergen.name}</span>
+                                                                    </span>
+                                                                ))}
+                                                                {hiddenCount > 0 && (
+                                                                    <span className="inline-flex items-center text-[11px] font-bold px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-md border border-neutral-200/50 dark:border-neutral-700/50 shadow-2xs">
+                                                                        +{hiddenCount}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })()}
+                                                </div>
+                                            </div>
+
+                                            {/* ================= ОБОРОТНАЯ СТОРОНА ================= */}
+                                            <div
+                                                className={`absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-sm z-10 ${!isFlipped ? 'pointer-events-none' : ''
+                                                    }`}
+                                            >
+                                                <div className="flex flex-col h-full w-full">
+
+                                                    {/* Верхняя панелька оборота */}
+                                                    <div className="flex flex-row items-center justify-between mb-4 w-full">
+                                                        {/* Кнопка "Вернуть как было" */}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // Защита от перехода по ссылке
+                                                                toggleFlip(recipe.id); // Крутим обратно на лицо
+                                                            }}
+                                                            className="p-2 cursor-pointer bg-neutral-200 dark:bg-neutral-800 rounded-full text-neutral-600 dark:text-neutral-400 hover:text-indigo-500 transition shrink-0"
+                                                            title="Atgriezties"
+                                                        >
+                                                            {/* Иконка Undo2 (закругленная стрелка назад) отлично подойдет */}
+                                                            <Undo2 className="size-4" />
+                                                        </button>
+
+                                                        <span className="text-xl font-bold text-neutral-500 dark:text-white  tracking-wider">Apraksts</span>
+                                                        <div className="w-8" /> {/* Центровщик-пустышка */}
+                                                    </div>
+
+                                                    {/* Нижняя часть: Вывод списка всех аллергенов рецепта */}
+                                                    {recipe?.allergens && (
+                                                        <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800 shrink-0 [transform:translateZ(1px)]">
+                                                            <span className="block text-[11px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-2">
+                                                                {t.allergensTitle}
+                                                            </span>
+
+                                                            {recipe.allergens.length > 0 ? (
+                                                                <div className="flex flex-wrap gap-1.5 max-h-[75px] overflow-y-auto pr-0.5">
+                                                                    {recipe.allergens.map((allergen: Allergen) => {
+                                                                        const nameToDisplay = locale === 'lv'
+                                                                            ? (allergen.name_lv || allergen.name)
+                                                                            : (allergen.name || allergen.name_lv);
+
+                                                                        return (
+                                                                            <span
+                                                                                key={allergen.id}
+                                                                                className="inline-flex items-center gap-1.5 bg-amber-50/80 dark:bg-amber-950/30 text-amber-800 dark:text-amber-400 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-amber-200/40 dark:border-amber-900/40 shadow-2xs [transform:translateZ(1px)]"
+                                                                            >
+                                                                                <ShieldAlert className="size-3 text-amber-500 shrink-0 stroke-[2.5]" />
+                                                                                <span className="inline-block [transform:translateZ(0px)]">
+                                                                                    {nameToDisplay || "Неизвестно"}
+                                                                                </span>
+                                                                            </span>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            ) : (
+                                                                /* Красивая заглушка, если аллергенов нет */
+                                                                <p className="text-[12px] text-neutral-400 dark:text-neutral-500 italic">
+                                                                    {locale === 'lv' ? 'Nav alergēnu' : 'Аллергены отсутствуют'}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
-                    )}
+                    )
+                    }
                 </div>
             </div>
         </div>

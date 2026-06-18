@@ -1,6 +1,7 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, ChefHat, Clock, ShieldAlert, Scale } from 'lucide-react';
+import { getGoalBadgeStyles, getRecipeGoalType } from '@/utils/recipeHelpers';
 
 // Описываем типы данных, которые прилетают из Laravel
 interface Allergen {
@@ -70,39 +71,7 @@ export default function RecipeView({ recipe, locale = 'lv', fromTab = 'all' }: P
 
     const t = translations[locale];
 
-    // АЛГОРИТМ: Автоматическое определение класса рецепта по БЖУ
-    const getAutoGoalType = (): string => {
-        const { calories, proteins, carbs } = recipe;
-
-        const proteinKcal = proteins * 4;
-        const carbsKcal = carbs * 4;
-
-        // 1. НАБОР МАССЫ: Блюдо должно быть сытным (>=500 ккал) И иметь высокую общую калорийность или упор на углеводы
-        if (calories >= 500 && (calories > 600 || (carbsKcal / calories) > 0.50)) {
-            return t.gain;
-        }
-
-        // 2. ПОХУДЕНИЕ: Легкое блюдо (<350 ккал) ИЛИ белок доминирует (>30% от энергии)
-        if (calories < 350 || (proteinKcal / calories) > 0.30) {
-            return t.loss;
-        }
-
-        return t.maintenance;
-    };
-
-    // Сначала инициализируем тип цели
-    const goalType = getAutoGoalType();
-
-    // Теперь безопасно вычисляем стили на основе уже созданной переменной goalType
-    const getBadgeStyles = () => {
-        if (goalType === t.gain) {
-            return 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900/30';
-        }
-        if (goalType === t.loss) {
-            return 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30';
-        }
-        return 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/30';
-    };
+    const goalKey = getRecipeGoalType(recipe);
 
     return (
         <div className="py-6 px-4 sm:px-6 lg:px-8 w-full max-w-5xl mx-auto">
@@ -140,8 +109,8 @@ export default function RecipeView({ recipe, locale = 'lv', fromTab = 'all' }: P
                     {/* Название, Динамическая Цель и Аллергены */}
                     <div className="md:col-span-2 space-y-4">
                         <div className="space-y-1">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all ${getBadgeStyles()}`}>
-                                {goalType}
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all ${getGoalBadgeStyles(goalKey)}`}>
+                                {t[goalKey]}                            
                             </span>
                             <h1 className="text-2xl md:text-3xl font-black text-neutral-900 dark:text-white">
                                 {recipeName || 'Bez nosaukuma'}
