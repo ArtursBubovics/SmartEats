@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
-import { Separator } from '@radix-ui/react-separator';
 
 // Карта всех доступных языков приложения для легкого масштабирования
 const languages = [

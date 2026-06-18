@@ -21,7 +21,8 @@ use Laravel\Sanctum\HasApiTokens;
     'gender_lv',
     'gender_en',
     'goal_lv',
-    'goal_en'
+    'goal_en',
+    'locale'
 ])] // поля которые пользователь может заполнять
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable

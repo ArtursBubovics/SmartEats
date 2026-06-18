@@ -1,0 +1,39 @@
+{
+    "welcome": "Sveicināti atpakaļ",
+    "logout": "Iziet",
+    "recipes": {
+        "all_recipes": "Visas receptes",
+        "favorites": "Izlase",
+        "history": "Vēsture",
+        "no_photo": "Receptes foto",
+        "description_title": "Apraksts",
+        "allergens_title": "Alergēni:",
+        "no_allergens": "Nav alergēnu",
+        "unknown": "Nezināms",
+        "empty_filtered": "Netika rasta neviena recepte ar šādiem filtriem.",
+        "empty_favorites": "Jums vēl nav saglabātu recepšu.",
+        "empty_history": "Skatīšanās vēsture ir tukša.",
+        "maintenance": "Svara saglabāšana",
+        "gain": "Masas palielināšana",
+        "loss": "Svara samazināšana",
+        "calories": "Kalorijas",
+        "kcal": "kcal",
+        "protein": "Olb.",
+        "carbs": "Ogļh.",
+        "fats": "Tauki",
+        "tabs": {
+            "all": {
+                "title": "Pieejamās receptes",
+                "desc": "Droša pārtika, kas atlasīta, balstoties uz Jūsu veselības profilu."
+            },
+            "favorites": {
+                "title": "Jūsu izlases receptes",
+                "desc": "Šeit ir apkopoti Jūsu saglabātie un iecienītākie ēdieni ātrai piekļuvei."
+            },
+            "history": {
+                "title": "Skatīšanās vēsture",
+                "desc": "Nesen aplūkotās receptes, lai Jūs viegli varētu tās atrast vēlreiz."
+            }
+        }
+    }
+}

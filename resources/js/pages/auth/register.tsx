@@ -10,6 +10,10 @@ import { login } from '@/routes';
 import { store } from '@/routes/register';
 
 export default function Register() {
+    // Безопасно берем первые две буквы языка браузера (например, 'lv', 'en', 'ru')
+    const browserLocale = typeof window !== 'undefined'
+        ? (navigator.language || 'lv').slice(0, 2)
+        : 'lv';
     return (
         <>
             <Head title="Register" />
@@ -21,6 +25,12 @@ export default function Register() {
             >
                 {({ processing, errors }) => (
                     <>
+                        {/* Скрытое поле для автоматической отправки локали */}
+                        <input
+                            type="hidden"
+                            name="locale"
+                            value={browserLocale}
+                        />
                         <div className="grid gap-6">
                             <div className="grid gap-2">
                                 <Label htmlFor="name">Name</Label>

@@ -6,6 +6,7 @@ use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -22,12 +23,20 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
+            'locale' => ['nullable', 'string', Rule::in(['lv', 'en', 'ru'])],
         ])->validate();
+
+        // Безопасный фоллбек: если язык браузера пустой или не поддерживается, ставим 'en'
+        $locale = $input['locale'] ?? 'en';
+        if (!in_array($locale, ['lv', 'en', 'ru'])) {
+            $locale = 'en';
+        }
 
         return User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
+            'locale' => $locale,
         ]);
     }
 }

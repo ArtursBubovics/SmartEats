@@ -1,26 +1,28 @@
+import { useTranslate } from '@/hooks/useTranslate';
 import React from 'react';
 
 interface RecipeHeaderProps {
     activeTab: string;
 }
 
-const tabContent = {
-    all: {
-        title: 'Pieejamās receptes',
-        desc: 'Droša pārtika, kas atlasīta, balstoties uz Jūsu veselības profilu.'
-    },
-    favorites: {
-        title: 'Jūsu izlases receptes',
-        desc: 'Šeit ir apkopoti Jūsu saglabātie un iecienītākie ēdieni ātrai piekļuvei.'
-    },
-    history: {
-        title: 'Skatīšanās vēsture',
-        desc: 'Nesen aplūkotās receptes, lai Jūs viegli varētu tās atrast vēlreiz.'
-    }
-};
-
 export default function RecipeHeader({ activeTab }: RecipeHeaderProps) {
+    const { t, locale } = useTranslate();
+    const tabContent = {
+        all: {
+            title: t('recipes.tabs.all.title'),
+            desc: t('recipes.tabs.all.desc')
+        },
+        favorites: {
+            title: t('recipes.tabs.favorites.title'),
+            desc: t('recipes.tabs.favorites.desc')
+        },
+        history: {
+            title: t('recipes.tabs.history.title'),
+            desc: t('recipes.tabs.history.desc')
+        }
+    };
     const currentHeader = tabContent[activeTab as keyof typeof tabContent] || tabContent.all;
+
 
     return (
         <div className="mb-8">

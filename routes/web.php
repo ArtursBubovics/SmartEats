@@ -3,10 +3,33 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\RecipeController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
+
+Route::get('/locale/{locale}', function ($locale) {
+    if (!in_array($locale, ['lv', 'en', 'ru'])) {
+        abort(400);
+    }
+
+    // Если пользователь вошел — сохраняем выбор в базу данных
+    if (Auth::check()) {
+        $user = Auth::user();
+        if ($user instanceof \App\Models\User) {
+            $user->locale = $locale;
+            $user->save();
+        }
+    }
+
+    // В любом случае дублируем в сессию (для гостей и общей стабильности)
+    Session::put('locale', $locale);
+    app()->setLocale($locale);
+
+    return redirect()->back();
+})->name('locale.change');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // если пользователь перешел /dashboard 

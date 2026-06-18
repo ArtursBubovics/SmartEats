@@ -1,0 +1,39 @@
+{
+    "welcome": "Welcome back",
+    "logout": "Log Out",
+    "recipes": {
+        "all_recipes": "All recipes",
+        "favorites": "Favorites",
+        "history": "History",
+        "no_photo": "Recipe photo",
+        "description_title": "Description",
+        "allergens_title": "Allergens:",
+        "no_allergens": "Allergens absent",
+        "unknown": "Unknown",
+        "empty_filtered": "No recipes found with these filters.",
+        "empty_favorites": "You don't have any saved recipes yet.",
+        "empty_history": "Your viewing history is empty.",
+        "maintenance": "Weight Maintenance",
+        "gain": "Weight Gain",
+        "loss": "Weight Loss",
+        "calories": "Calories",
+        "kcal": "kcal",
+        "protein": "Protein",
+        "carbs": "Сarbs",
+        "fats": "Fats",
+        "tabs": {
+            "all": {
+                "title": "Available Recipes",
+                "desc": "Safe food items, selected based on your health profile."
+            },
+            "favorites": {
+                "title": "Your Favorite Recipes",
+                "desc": "Here are your saved and preferred dishes for quick access."
+            },
+            "history": {
+                "title": "Viewing History",
+                "desc": "Recently viewed recipes, so you can easily find them again."
+            }
+        }
+    }
+}

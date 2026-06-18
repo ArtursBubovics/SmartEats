@@ -19,11 +19,13 @@ return new class extends Migration
             $table->string('password');
 
             $table->integer('height')->nullable();
-            $table->integer('weight')->nullable(); 
+            $table->integer('weight')->nullable();
             $table->string('gender_lv')->nullable();
             $table->string('gender_en')->nullable();
             $table->string('goal_lv')->nullable();
             $table->string('goal_en')->nullable();
+
+            $table->string('locale')->default('en');
 
             $table->string('role')->default('user');
             $table->boolean('is_blocked')->default(false);

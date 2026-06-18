@@ -22,6 +22,8 @@ return new class extends Migration
             $table->text('description_lv');
             $table->text('description_en');
 
+            $table->string('image_path')->nullable();
+
             $table->integer('calories');
             $table->integer('proteins');  
             $table->integer('fats');    

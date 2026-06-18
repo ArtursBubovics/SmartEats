@@ -3,6 +3,7 @@ import { ChefHat, History, Heart, LayoutGrid, ShieldAlert, ArrowUpRight, Undo2 }
 import RecipeHeader from '@/my_components/recipes/recipe_main/RecipeHeader';
 import RecipeFilters from '@/my_components/recipes/recipe_main/RecipeFilters';
 import { getRecipeGoalType, getGoalBadgeStyles } from '@/utils/recipeHelpers';
+import { useTranslate } from '@/hooks/useTranslate';
 interface Allergen {
     id: number;
     name_lv?: string;
@@ -29,6 +30,7 @@ interface IndexProps {
 }
 
 export default function Index({ recipes, currentTab }: IndexProps) {
+    const { t, locale } = useTranslate(); // <-- Подключаем мультиязычность
 
     const [searchQuery, setSearchQuery] = useState('');
     const [maxCalories, setMaxCalories] = useState<number>(1000);
@@ -52,8 +54,6 @@ export default function Index({ recipes, currentTab }: IndexProps) {
         setLocalRecipes(recipes);
     }, [recipes]);
 
-    const locale = (typeof navigator !== 'undefined' && navigator.language && navigator.language.startsWith('lv')) ? 'lv' : 'en';
-
     const availableAllergens = useMemo(() => {
         const map = new Map<number, Allergen>();
         recipes.forEach(recipe => {
@@ -65,23 +65,6 @@ export default function Index({ recipes, currentTab }: IndexProps) {
         });
         return Array.from(map.values());
     }, [recipes]);
-
-    // Локализация для бейджей целей
-    const translations = {
-        lv: {
-            maintenance: 'Svara saglabāšana',
-            gain: 'Masas palielināšana',
-            loss: 'Svara samazināšana',
-            allergensTitle: 'Alergēni:',
-        },
-        en: {
-            maintenance: 'Weight Maintenance',
-            gain: 'Weight Gain',
-            loss: 'Weight Loss',
-            allergensTitle: 'Allergens:',
-        }
-    };
-    const t = translations[locale];
 
     // Фильтруем и сортируем локальный стейт рецептов
     const filteredRecipes = localRecipes
@@ -149,7 +132,7 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                             }`}
                     >
                         <LayoutGrid className={`size-3.5 ${currentTab === 'all' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
-                        <span>Visi recepti</span>
+                        <span>{t('recipes.all_recipes')}</span>
                     </Link>
 
                     {/* Ссылка: Izlase (/recipes/favorites) */}
@@ -162,7 +145,7 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                             }`}
                     >
                         <Heart className={`size-3.5 ${currentTab === 'favorites' ? 'fill-indigo-600/10 dark:fill-indigo-400/10 text-indigo-600 dark:text-indigo-400' : ''}`} />
-                        <span>Izlase</span>
+                        <span>{t('recipes.favorites')}</span>
                     </Link>
                     {/* Ссылка: Vēsture (/recipes/history) */}
                     <Link
@@ -174,7 +157,7 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                             }`}
                     >
                         <History className={`size-3.5 ${currentTab === 'history' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
-                        <span>Vēsture</span>
+                        <span>{t('recipes.history')}</span>
                     </Link>
                 </div>
             </div>
@@ -204,9 +187,9 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                     {filteredRecipes.length === 0 ? (
                         <div className="text-center py-12 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-sm">
                             <p className="text-neutral-500 dark:text-neutral-400 font-medium">
-                                {currentTab === 'all' && 'Netika rasta neviena recepte ar šādiem filtriem.'}
-                                {currentTab === 'favorites' && 'Jums vēl nav saglabātu recepšu.'}
-                                {currentTab === 'history' && 'Skatīšanās vēsture ir tukša.'}
+                                {currentTab === 'all' && t('recipes.empty_filtered')}
+                                {currentTab === 'favorites' && t('recipes.empty_favorites')}
+                                {currentTab === 'history' && t('recipes.empty_history')}
                             </p>
                         </div>
                     ) : (
@@ -273,7 +256,7 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                                                         </div>
                                                         <div className="absolute top-0 right-0 pt-2 pr-2">
                                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all ${getGoalBadgeStyles(goalKey)}`}>
-                                                                {t[goalKey]}
+                                                                {t(`recipes.${goalKey}`)}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -284,20 +267,20 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                                                     <div className="border-t border-neutral-100 dark:border-neutral-800/60 pt-4 mb-4">
                                                         <div className="grid grid-cols-4 gap-2 text-center">
                                                             <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
-                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Kcal</span>
+                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">{t('recipes.calories')}</span>
                                                                 <span className="text-base font-bold text-neutral-800 dark:text-neutral-200">{recipe.calories}</span>
                                                             </div>
                                                             <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
-                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Olbalt.</span>
-                                                                <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{recipe.proteins}g</span>
+                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">{t('recipes.protein')}</span>
+                                                                <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{recipe.proteins}</span>
                                                             </div>
                                                             <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
-                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Tauki</span>
-                                                                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{recipe.fats}g</span>
+                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">{t('recipes.fats')}</span>
+                                                                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{recipe.fats}</span>
                                                             </div>
                                                             <div className="bg-neutral-50 dark:bg-neutral-800/40 p-2 rounded-lg">
-                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">Ogļh.</span>
-                                                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{recipe.carbs}g</span>
+                                                                <span className="block text-xs text-neutral-400 dark:text-neutral-500 uppercase font-semibold tracking-wider">{t('recipes.carbs')}</span>
+                                                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{recipe.carbs}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -313,7 +296,7 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                                                                 {visibleAllergens.map((allergen: Allergen) => (
                                                                     <span key={allergen.id} className="inline-flex items-center gap-1.5 bg-amber-50/60 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-200/40 dark:border-amber-900/30 shadow-2xs">
                                                                         <ShieldAlert className="size-3 text-amber-500 dark:text-amber-500 flex-shrink-0 stroke-[2.5]" />
-                                                                        <span className="truncate max-w-[80px]">{locale === 'lv' ? allergen.name_lv : allergen.name}</span>
+                                                                        <span className="truncate max-w-[80px]">{allergen.name}</span>
                                                                     </span>
                                                                 ))}
                                                                 {hiddenCount > 0 && (
@@ -349,7 +332,7 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                                                             <Undo2 className="size-4" />
                                                         </button>
 
-                                                        <span className="text-xl font-bold text-neutral-500 dark:text-white  tracking-wider">Apraksts</span>
+                                                        <span className="text-xl font-bold text-neutral-500 dark:text-white  tracking-wider">{t('recipes.description_title')}</span>
                                                         <div className="w-8" /> {/* Центровщик-пустышка */}
                                                     </div>
 
@@ -357,7 +340,7 @@ export default function Index({ recipes, currentTab }: IndexProps) {
                                                     {recipe?.allergens && (
                                                         <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800 shrink-0 [transform:translateZ(1px)]">
                                                             <span className="block text-[11px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-2">
-                                                                {t.allergensTitle}
+                                                                {t('recipes.allergens_title')}
                                                             </span>
 
                                                             {recipe.allergens.length > 0 ? (
