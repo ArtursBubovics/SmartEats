@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -35,6 +36,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // если пользователь перешел /dashboard 
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
+    Route::middleware(['can:access-admin'])->prefix('admin')->name('admin.')->group(function () {
+
+        // Главная страница админки (компонент admin/dashboard)
+        Route::inertia('/', 'admin/dashboard')->name('dashboard');
+
+        Route::get('/users', [UserController::class, 'index']);
+    });
 
     // Сработает RecipeController
     // Отрабатывает RecipeController и отфильтрует рецепты, оставив только безопасные

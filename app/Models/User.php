@@ -64,6 +64,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Allergen::class, 'allergen_user')->withTimestamps();
     }
-    
 
+    public function isAdmin(): bool
+    {
+        // Замени 'role' на имя своей колонки из БД, если нужно
+        return $this->role === 'admin';
+    }
 }

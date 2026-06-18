@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutGrid,
     Utensils,
@@ -8,7 +8,11 @@ import {
     HeartPulse,
     FolderGit2,
     BookOpen,
-    HelpCircle
+    HelpCircle,
+    ShieldAlert,
+    FolderKanban,
+    Users,
+    Settings2
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -67,7 +71,49 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
+// ==========================================
+// 2. НАВИГАЦИЯ ТОЛЬКО ДЛЯ АДМИНИСТРАТОРА (ADMIN)
+// ==========================================
+const adminMainNavItems: NavItem[] = [
+    {
+        title: 'Admin Dashboard',
+        href: '/admin',
+        icon: ShieldAlert,
+    },
+    {
+        title: 'Manage Recipes',
+        href: '/admin/recipes',
+        icon: FolderKanban,
+    },
+    {
+        title: 'Manage Users',
+        href: '/admin/users',
+        icon: Users,
+    }
+];
+
+const adminFooterNavItems: NavItem[] = [
+    {
+        title: 'System Settings',
+        href: '/admin/settings',
+        icon: Settings2,
+    },
+    {
+        title: 'User View',
+        href: dashboard(), // Кнопка, чтобы админ мог легко вернуться в обычный личный кабинет
+        icon: LayoutGrid,
+    },
+];
+
+
 export function AppSidebar() {
+    const { auth } = usePage().props as any;
+
+    const isAdmin = auth.user?.is_admin === true;
+    
+    const currentMainItems = isAdmin ? adminMainNavItems : mainNavItems;
+    const currentFooterItems = isAdmin ? adminFooterNavItems : footerNavItems;
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -83,11 +129,11 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={currentMainItems} />
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+                <NavFooter items={currentFooterItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
