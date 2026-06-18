@@ -11,34 +11,35 @@ Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
 
+// роут для смены языка сайта
 Route::get('/locale/{locale}', function ($locale) {
+    // Проверяем что передаваемый язык есть в списке разрешенных (lv, en, ru)
     if (!in_array($locale, ['lv', 'en', 'ru'])) {
         abort(400);
     }
 
-    // Если пользователь вошел — сохраняем выбор в базу данных
-    if (Auth::check()) {
+    // Если пользователь вошел, то сохраняем выбор в бд
+    if (Auth::check()) { // Проверяем, авторизован ли
         $user = Auth::user();
-        if ($user instanceof \App\Models\User) {
+        if ($user instanceof \App\Models\User) { // Проверсяем, что user создан по шаблону User, если да, то сохраняем в бд
             $user->locale = $locale;
             $user->save();
         }
     }
 
     // В любом случае дублируем в сессию (для гостей и общей стабильности)
-    Session::put('locale', $locale);
-    app()->setLocale($locale);
+    Session::put('locale', $locale); // Сохраняем выбранный язык в сессию
+    app()->setLocale($locale); // Устанавливаем язык приложения на выбранный для самого ларавела
 
     return redirect()->back();
-})->name('locale.change');
+})->name('locale.change'); // Роут которые сокращает название на locale.change, чтобы в коде было удобнее его использовать
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // если пользователь перешел /dashboard 
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::inertia('dashboard', 'dashboard')->name('dashboard'); // Роуты без уонтроллерв
 
-    Route::middleware(['can:access-admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['can:access-admin'])->prefix('admin')->name('admin.')->group(function () { // Только для админов is_admin  // admin.dashboard для ссылок/редиректов
 
-        // Главная страница админки (компонент admin/dashboard)
         Route::inertia('/', 'admin/dashboard')->name('dashboard');
 
         Route::get('/users', [UserController::class, 'index']);
@@ -48,23 +49,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
     });
 
-    // Сработает RecipeController
-    // Отрабатывает RecipeController и отфильтрует рецепты, оставив только безопасные
-    // Попросит Inertia открыть React-компонент, который находится по пути recipes/index (внутри папки с фронтендом), и автоматически передаст туда этот список рецептов
+
     Route::prefix('recipes')->name('recipes.')->group(function () {
 
-        // 1. Авто-редирект: если зайти просто на smarteats.test/recipes, перекинет на /recipes/all
         Route::get('/', function () {
             return redirect()->route('recipes.index');
         });
 
-        // 2. Все рецепты (Твой изначальный роут, теперь доступен по адресу /recipes/all)
         Route::get('/all', [RecipeController::class, 'index'])->name('index');
 
-        // 3. Избранные рецепты (Доступен по адресу /recipes/favorites)
         Route::get('/favorites', [RecipeController::class, 'favorites'])->name('favorites');
 
-        // 4. История просмотров (Доступен по адресу /recipes/history)
         Route::get('/history', [RecipeController::class, 'history'])->name('history');
 
 
@@ -76,7 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/{id}/view', [RecipeController::class, 'addToHistory']);
 
-        // 5. Роут для самого сердечка (POST-запрос для добавления/удаления из избранного)
+        // Роут для самого сердечка (POST-запрос для добавления/удаления из избранного)
         Route::post('/{recipe}/favorite', [RecipeController::class, 'toggleFavorite'])->name('favorite');
     });
 });

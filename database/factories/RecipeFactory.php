@@ -31,14 +31,16 @@ class RecipeFactory extends Factory
         $fats = $this->faker->numberBetween(5, 30);
         $carbs = $this->faker->numberBetween(10, 80);
 
-        $randomGoal = $this->faker->randomElement($goals);
+        //$randomGoal = $this->faker->randomElement($goals);
 
         return [
-            /**  ТУТ ЗАПОЛНЯЕМ ПОЛЯ РАНДОМНЫЕМИ СЛОВАМИ*/
-            'name_lv' => 'Maltīte ' . Str::ucfirst($this->faker->word()), // ucfirst делает первую букву заглавной , а остальные символы оставляет без изменений
-            'name_en' => 'Meal ' . Str::ucfirst($this->faker->word()), // Str справляется и с латышскими буквами где длинная буква
+            /** Šeit aizpildām laukus ar nejaušiem vārdiem / ТУТ ЗАПОЛНЯЕМ ПОЛЯ РАНДОМНЫЕМИ СЛОВАМИ */
+            // ucfirst padara pirmo burtu lielo, bet pārējos simbolus atstāj bez izmaiņām / ucfirst делает первую букву заглавной , а остальные символы оставляет без изменений
+            'name_lv' => 'Maltīte ' . Str::ucfirst($this->faker->word()),
+            // Str tiek galā arī ar latviešu burtiem ar garumzīmēm / Str справляется и с латышскими буквами где длинная буква
+            'name_en' => 'Meal ' . Str::ucfirst($this->faker->word()),
 
-            /** ТУТ ГЕНЕРИРУЕМ ОПИСАНИЕ, КОТОРОЕ БУДЕТ ОСМЫСЛЕННЫМ  150 СИМВОЛОВ*/
+            /** Šeit ģenerējam aprakstu, kas būs jēgpilns, 150 simboli / ТУТ ГЕНЕРИРУЕМ ОПИСАНИЕ, КОТОРОЕ БУДЕТ ОСМЫСЛЕННЫМ  150 СИМВОЛОВ */
             'description_lv' => 'Šī ir ' . $this->faker->word() . ' maltīte. ' . $this->faker->realText(150),
             'description_en' => 'This is ' . $this->faker->word() . ' meal. ' . $this->faker->realText(150),
 

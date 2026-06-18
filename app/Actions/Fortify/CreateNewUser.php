@@ -20,13 +20,15 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
-        Validator::make($input, [
+        // Ņem visus datus no reģistrācijas formas un pārbauda tos pēc validācijas noteikumiem.
+        Validator::make($input, [ // Берет все данные, которые пришли из формы регистрации и проверяет их на валидность по второму аргументу
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
             'locale' => ['nullable', 'string', Rule::in(['lv', 'en', 'ru'])],
-        ])->validate();
+        ])->validate(); 
 
-        // Безопасный фоллбек: если язык браузера пустой или не поддерживается, ставим 'en'
+        // Droša rezerves opcija: ja valoda ir tukša (operators ??), pēc noklusējuma iestatām 'en'
+        // Безопасный фоллбек: если язык браузера пустой или не поддерживается, тогда 'en'
         $locale = $input['locale'] ?? 'en';
         if (!in_array($locale, ['lv', 'en', 'ru'])) {
             $locale = 'en';

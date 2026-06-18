@@ -67,7 +67,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->getKey() === Auth::id()) {
+        // Pārbaude: administrators nevar izdzēst savu kontu
+        if ($user->getKey() === Auth::id()) { // Проверка на попытку удалить свой собственный аккаунт
             return redirect()->back()->with('error', 'Вы не можете удалить свой собственный аккаунт.');
         }
         $user->delete();

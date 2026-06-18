@@ -33,21 +33,22 @@ class HandleInertiaRequests extends Middleware
      *
      * @return array<string, mixed>
      */
-    public function share(Request $request): array
+    public function share(Request $request): array // Pieeja absolūti jebkurā React komponentē / доступ абсолютно в любом React-компоненте
     {
-        if ($request->user()?->locale) {
+        if ($request->user()?->locale) { // Pārbaude vai autorizējies. Iestata valodu sesijai / проверка авторизован. устанавливает язык для сессии
+            app()->setLocale($request->user()->locale);
             app()->setLocale($request->user()->locale);
         }
 
         return [
-            ...parent::share($request),
-            'name' => config('app.name'),
-            'auth' => [
+            ...parent::share($request), // Validācijas kļūdas un cits / ошибки валидации и другое
+            'name' => config('app.name'), // Papildus tas, kas zemāk / Mājaslapas nosaukums / доп то что снизу / название сайта
+            'auth' => [ // инфо. пользователя
                 'user' => $request->user() ? [
                     'id' => $request->user()->id,
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
-                    'is_admin' => $request->user()->isAdmin(), // 👈 Добавляем флаг проверки
+                    'is_admin' => $request->user()->isAdmin(),
                 ] : null,
             ],
             'locale' => $request->user()?->locale ?? app()->getLocale(),

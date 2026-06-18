@@ -36,10 +36,6 @@ class User extends Authenticatable
      * @return array<string, string>
      */
 
-    /**
-     * Автоперевод типов: преобразует данные из формата базы (MySQL) 
-     * в удобные типы PHP (например, 1/0 в true/false, пароль в хеш).
-     */
     protected function casts(): array
     {
         return [
@@ -48,7 +44,7 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
             'is_blocked' => 'boolean'
         ];
-    }
+    } // Lauki, kurus lietotājs var aizpildīt / поля которые пользователь может заполнять
 
     public function user_activity()
     {
@@ -67,7 +63,8 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        // Замени 'role' на имя своей колонки из БД, если нужно
+        // Atgriež true, ja lietotājam kolonnā "role" vērtība ir "admin"
+        // Возвращает true, если у пользователя в колонке is_admin значение true
         return $this->role === 'admin';
     }
 }

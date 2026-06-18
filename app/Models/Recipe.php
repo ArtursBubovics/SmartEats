@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable([
+#[Fillable([  // Atļautie lauki masveida aizpildīšanai / разрешенные поля для массового заполнения
     'name_lv',
     'name_en',
     'description_lv',

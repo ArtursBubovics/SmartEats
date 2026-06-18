@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 class AllergenFactory extends Factory
 {
 
-    protected $model = Allergen::class;
+    protected $model = Allergen::class; // Фабрика для Allergen
 
     /**
      * Define the model's default state.
@@ -25,8 +25,11 @@ class AllergenFactory extends Factory
         $baseWord = $this->faker->unique()->word();
 
         return [
-            'name_lv' => Str::ucfirst($baseWord) . '_LV', // ucfirst делает первую букву заглавной , а остальные символы оставляет без изменений
-            'name_en' => Str::ucfirst($baseWord) . '_EN', // Str справляется и с латышскими буквами где длинная буква
+            // ucfirst padara pirmo burtu lielo, bet pārējos simbolus atstāj bez izmaiņām / ucfirst делает первую букву заглавной , а остальные символы оставляет без изменений
+            'name_lv' => Str::ucfirst($baseWord) . '_LV', 
+
+            // Str tiek galā arī ar latviešu burtiem ar garumzīmēm / Str справляется и с латышскими буквами где длинная буква
+            'name_en' => Str::ucfirst($baseWord) . '_EN',
         ];
     }
 }

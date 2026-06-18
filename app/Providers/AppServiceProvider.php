@@ -25,9 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::define('access-admin', function (User $user) {
-            // Предположим, колонка в твоей таблице users называется 'role' или 'status'
-            // Замени на свое имя колонки, если оно другое (например, $user->status)
+        // Reģistrējam piekļuves vārteju ar koda vārdu 'access-admin' administratora lomas pārbaudei  / Route::get('/admin', [AdminController::class, 'index'])->middleware('can:access-admin');
+        Gate::define('access-admin', function (User $user) { // Проверка на админа. Тип с кодовым словом
+
             return $user->isAdmin();
         });
     }

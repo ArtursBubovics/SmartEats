@@ -41,7 +41,7 @@ class UserFactory extends Factory
 
         $randomGoal = fake()->randomElement($goals);
         
-        // Случайный пол
+        // Nejaušs dzimums / Случайный пол
         $isMale = fake()->boolean();
 
         return [
@@ -60,7 +60,7 @@ class UserFactory extends Factory
             'gender_en' => $isMale ? 'Male' : 'Female',
             'goal_lv' => $randomGoal['lv'],
             'goal_en' => $randomGoal['en'],
-            'role' => 'user', // по умолчанию все обычные пользователи
+            'role' => 'user', // pēc noklusējuma visi ir parastie lietotāji / по умолчанию все обычные пользователи
             'is_blocked' => false,
         ];
     }
