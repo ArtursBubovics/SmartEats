@@ -42,6 +42,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::inertia('/', 'admin/dashboard')->name('dashboard');
 
         Route::get('/users', [UserController::class, 'index']);
+
+        Route::patch('/users/{user}/role', [UserController::class, 'updateRole']);
+        Route::patch('/users/{user}/toggle-block', [UserController::class, 'toggleBlock']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);
     });
 
     // Сработает RecipeController

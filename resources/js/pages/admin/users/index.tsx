@@ -27,14 +27,31 @@ interface ManageUsersProps {
 export default function ManageUsers() {
     // Вытаскиваем массив пользователей из пропсов Inertia
     const { users, auth } = usePage<any>().props as ManageUsersProps;
-    const currentUserId = auth?.user?.id; 
+    const currentUserId = auth?.user?.id;
 
     function toggleRole(user: UserItem): void {
-        throw new Error('Function not implemented.');
+        const newRole = user.role === 'admin' ? 'user' : 'admin';
+
+        router.patch(`/admin/users/${user.id}/role`, {
+            role: newRole
+        }, {
+            preserveScroll: true, // Страница не прыгнет вверх после обновления данных
+        });
     }
 
-    // Логику кнопки смены роли напишем чуть позже, сначала сделаем разметку...
+    function toggleBlock(user: UserItem): void {
+        router.patch(`/admin/users/${user.id}/toggle-block`, {}, {
+            preserveScroll: true,
+        });
+    }
 
+    function deleteUser(user: UserItem): void {
+        if (confirm(`Вы уверены, что хотите удалить пользователя ${user.name}?`)) {
+            router.delete(`/admin/users/${user.id}`, {
+                preserveScroll: true,
+            });
+        }
+    }
     return (
         <>
             <Head title="Manage Users" />
@@ -133,7 +150,7 @@ export default function ManageUsers() {
                                                             <Checkbox
                                                                 checked={user.is_blocked}
                                                                 disabled={isMe} // 👈 Себя забанить нельзя
-                                                                //onCheckedChange={() => toggleBlock(user)}
+                                                                onCheckedChange={() => toggleBlock(user)}
                                                                 className="border-neutral-300 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600 h-4 w-4 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                                             />
                                                         </div>
@@ -158,7 +175,7 @@ export default function ManageUsers() {
                                                                 variant="ghost"
                                                                 size="icon"
                                                                 disabled={isMe} // 👈 Себя удалить нельзя
-                                                                //onClick={() => deleteUser(user)}
+                                                                onClick={() => deleteUser(user)}
                                                                 className="h-8 w-8 text-neutral-400 hover:text-red-600 hover:bg-red-50 dark:text-neutral-500 dark:hover:text-red-400 dark:hover:bg-red-950/20 transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-neutral-400"
                                                                 title={isMe ? "Вы не можете удалить свой собственный аккаунт" : "Удалить пользователя"}
                                                             >
