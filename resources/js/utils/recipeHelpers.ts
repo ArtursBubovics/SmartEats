@@ -1,5 +1,3 @@
-// resources/js/utils/recipeHelpers.ts
-
 interface RecipeKeyNutrition {
     calories: number;
     proteins: number;
@@ -8,25 +6,24 @@ interface RecipeKeyNutrition {
 
 export type GoalType = 'gain' | 'loss' | 'maintenance';
 
-/**
- * Автоматически определяет категорию рецепта на основе его КБЖУ.
- * Возвращает строковый ключ цели.
- */
 export const getRecipeGoalType = (recipe: RecipeKeyNutrition): GoalType => {
     const { calories, proteins, carbs } = recipe;
 
+    // Novēršam dalīšanu ar nulli, ja kaloriju daudzums nav norādīts vai ir 0
     // Предотвращаем деление на ноль, если калорийность не указана или равна 0
     if (!calories || calories === 0) return 'maintenance';
 
     const proteinKcal = proteins * 4;
     const carbsKcal = carbs * 4;
 
-    // 1. НАБОР МАССЫ: Блюдо сытное (>=500 ккал) И (высокая общая калорийность или упор на углеводы)
+    // MASAS PALIELINĀŠANA: Sātīgs ēdiens (>=500 kcal) UN (augsta kopējā kaloriju vērtība vai uzsvars uz ogļhidrātiem)
+    // НАБОР МАССЫ: Блюдо сытное (>=500 ккал) И (высокая общая калорийность или упор на углеводы)
     if (calories >= 500 && (calories > 600 || (carbsKcal / calories) > 0.50)) {
         return 'gain';
     }
 
-    // 2. ПОХУДЕНИЕ: Легкое блюдо (<350 ккал) ИЛИ белок доминирует (>30% от энергии)
+    // SVARA SAMAZINĀŠANA: Viegls ēdiens (<350 kcal) VAI proteīns dominē (>30% no enerģijas)
+    // ПОХУДЕНИЕ: Легкое блюдо (<350 ккал) ИЛИ белок доминирует (>30% от энергии)
     if (calories < 350 || (proteinKcal / calories) > 0.30) {
         return 'loss';
     }
@@ -34,9 +31,9 @@ export const getRecipeGoalType = (recipe: RecipeKeyNutrition): GoalType => {
     return 'maintenance';
 };
 
-/**
- * Возвращает Tailwind-классы для стилизации бейджа на основе ключа цели.
- */
+
+// Atgriež Tailwind klases nozīmītes (badge) stilizācijai, balstoties uz mērķa atslēgu.
+// Возвращает Tailwind-классы для стилизации бейджа на основе ключа цели.
 export const getGoalBadgeStyles = (goal: GoalType): string => {
     switch (goal) {
         case 'gain':

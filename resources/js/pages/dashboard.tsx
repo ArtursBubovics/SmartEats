@@ -14,13 +14,12 @@ export default function Dashboard() {
     return (
         <>
             <Head title="Dashboard" />
-            
+
             <div className="flex h-auto flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                
-                {/* ВЕРХНЯЯ СЕТКА: 3 главных прямоугольника */}
+
                 <div className="auto-rows-min gap-4 md:grid-cols-3 hidden sm:grid">
-                    
-                    {/* Блок 1: Receptes */}
+
+                    {/* Receptes */}
                     <Link href="/recipes" className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-sidebar-border/70 p-5 bg-white dark:bg-neutral-950 hover:shadow-sm hover:border-neutral-300 dark:hover:border-neutral-800 transition duration-200">
                         <div>
                             <div className="flex items-center justify-between mb-3">
@@ -36,7 +35,7 @@ export default function Dashboard() {
                         </div>
                     </Link>
 
-                    {/* Блок 2: Plānotājs */}
+                    {/* Plānotājs */}
                     <Link href="/planner" className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-sidebar-border/70 p-5 bg-white dark:bg-neutral-950 hover:shadow-sm hover:border-neutral-300 dark:hover:border-neutral-800 transition duration-200">
                         <div>
                             <div className="flex items-center justify-between mb-3">
@@ -51,9 +50,9 @@ export default function Dashboard() {
                             </p>
                         </div>
                     </Link>
-                    
 
-                    {/* Блок 3: Iepirkumu saraksts (Перенесен наверх) */}
+
+                    {/* Iepirkumu saraksts (Перенесен наверх) */}
                     <Link href="/shopping-list" className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-sidebar-border/70 p-5 bg-white dark:bg-neutral-950 hover:shadow-sm hover:border-neutral-300 dark:hover:border-neutral-800 transition duration-200">
                         <div>
                             <div className="flex items-center justify-between mb-3">
@@ -71,12 +70,13 @@ export default function Dashboard() {
 
                 </div>
 
+                {/* APAKŠĒJAIS BLOKS: Kompakts papildu rīku saraksts */}
                 {/* НИЖНИЙ БЛОК: Компактный список дополнительных инструментов */}
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 p-6 bg-white dark:bg-neutral-950">
                     <h3 className="text-base font-bold text-neutral-900 dark:text-white mb-4">Papildu rīki</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Доп 1: Veselības profils (Перенесен вниз) */}
+                        {/* Veselības profils (Перенесен вниз) */}
                         <Link href="/health-profile" className="group p-4 border border-neutral-100 dark:border-neutral-900/60 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/40 transition">
                             <div className="flex items-center gap-3 mb-2">
                                 <HeartPulse className="size-5 text-rose-600" />
@@ -85,7 +85,7 @@ export default function Dashboard() {
                             <p className="text-xs text-neutral-400">Pārvaldiet savas alerģijas, nepanesamības un fiziskos parametrus.</p>
                         </Link>
 
-                        {/* Доп 2: Статистика */}
+                        {/* Statistika // Статистика */}
                         <Link href="/statistics" className="group p-4 border border-neutral-100 dark:border-neutral-900/60 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/40 transition">
                             <div className="flex items-center gap-3 mb-2">
                                 <BarChart3 className="size-5 text-blue-600" />
@@ -94,7 +94,7 @@ export default function Dashboard() {
                             <p className="text-xs text-neutral-400">Analītika, KBŽU kopsavilkumi un fitnesa mērķu progresa grafiki.</p>
                         </Link>
 
-                        {/* Доп 3: Руководство */}
+                        {/* Rokasgrāmata // Руководство */}
                         <Link href="/guide" className="group p-4 border border-neutral-100 dark:border-neutral-900/60 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/40 transition">
                             <div className="flex items-center gap-3 mb-2">
                                 <HelpCircle className="size-5 text-violet-600" />

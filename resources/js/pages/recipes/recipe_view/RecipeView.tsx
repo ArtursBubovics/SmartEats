@@ -77,7 +77,6 @@ export default function RecipeView({ recipe, locale = 'lv', fromTab = 'all' }: P
         <div className="py-6 px-4 sm:px-6 lg:px-8 w-full max-w-5xl mx-auto">
             <Head title={recipeName || 'Recipe'} />
 
-            {/* Кнопка назад */}
             <div className="mb-6">
                 <Link
                     href={`/recipes/${fromTab}`}

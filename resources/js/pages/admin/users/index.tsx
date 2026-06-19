@@ -25,9 +25,10 @@ interface ManageUsersProps {
 }
 
 export default function ManageUsers() {
+    // Izgūst lietotāju masīvu no Inertia props
     // Вытаскиваем массив пользователей из пропсов Inertia
     const { users, auth } = usePage<any>().props as ManageUsersProps;
-    const currentUserId = auth?.user?.id;
+    const currentUserId = auth?.user?.id; // проверям что это не наш ид
 
     function toggleRole(user: UserItem): void {
         const newRole = user.role === 'admin' ? 'user' : 'admin';
@@ -35,12 +36,14 @@ export default function ManageUsers() {
         router.patch(`/admin/users/${user.id}/role`, {
             role: newRole
         }, {
+            // Lapa neuzlēks uz augšu pēc datu atjaunināšanas
             preserveScroll: true, // Страница не прыгнет вверх после обновления данных
         });
     }
 
     function toggleBlock(user: UserItem): void {
         router.patch(`/admin/users/${user.id}/toggle-block`, {}, {
+            // Lapa neuzlēks uz augšu pēc datu atjaunināšanas
             preserveScroll: true,
         });
     }
@@ -57,7 +60,6 @@ export default function ManageUsers() {
             <Head title="Manage Users" />
 
             <div className="flex flex-1 flex-col gap-6 p-6 md:p-4">
-                {/* Заголовок и кнопка назад */}
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
@@ -75,7 +77,6 @@ export default function ManageUsers() {
                     </Button>
                 </div>
 
-                {/* Таблица пользователей внутри карточки */}
                 <Card className="border-neutral-200/80 dark:border-neutral-800 shadow-sm">
                     <CardHeader className="pb-3">
                         <CardTitle className="text-lg font-semibold">User Database ({users?.length ?? 0})</CardTitle>
@@ -101,7 +102,7 @@ export default function ManageUsers() {
                                             return (
                                                 <tr key={user.id} className="bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
 
-                                                    {/* 1. Колонка USER INFO */}
+                                                    {/* Kolonna: LIETOTĀJA INFO // Колонка USER INFO */}
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col">
                                                             <span className="font-medium text-neutral-900 dark:text-neutral-50 flex items-center gap-1.5">
@@ -118,12 +119,12 @@ export default function ManageUsers() {
                                                         </div>
                                                     </td>
 
-                                                    {/* 2. Колонка REGISTERED */}
+                                                    {/* 2. Kolonna: REĢISTRĒTS // Колонка REGISTERED */}
                                                     <td className="px-6 py-4 text-sm text-neutral-600 dark:text-neutral-400">
                                                         {user.created_at}
                                                     </td>
 
-                                                    {/* 3. Колонка SYSTEM ROLE */}
+                                                    {/* Kolonna: SISTĒMAS LOMA // Колонка SYSTEM ROLE */}
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-2">
                                                             {user.role === 'admin' ? (
@@ -144,37 +145,35 @@ export default function ManageUsers() {
                                                         </div>
                                                     </td>
 
-                                                    {/* ЧЕКБОКС БАНА */}
+                                                    {/* INBLOĶĒŠANAS IZVĒLES RŪTIŅA // ЧЕКБОКС БАНА */}
                                                     <td className="px-6 py-4 text-center">
                                                         <div className="flex justify-center items-center">
                                                             <Checkbox
                                                                 checked={user.is_blocked}
-                                                                disabled={isMe} // 👈 Себя забанить нельзя
+                                                                disabled={isMe} // Себя забанить нельзя
                                                                 onCheckedChange={() => toggleBlock(user)}
                                                                 className="border-neutral-300 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600 h-4 w-4 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                                             />
                                                         </div>
                                                     </td>
 
-                                                    {/* 4. Колонка ACTIONS (Смена роли + Кнопка удаления) */}
+                                                    {/* Kolonna: DARBĪBAS (Lomas maiņa + Dzēšanas poga) // Колонка ACTIONS (Смена роли + Кнопка удаления) */}
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex items-center justify-end gap-2">
-                                                            {/* Кнопка смены роли */}
                                                             <Button
                                                                 variant="ghost"
                                                                 size="sm"
-                                                                disabled={isMe} // 👈 Себе роль менять нельзя
+                                                                disabled={isMe} // Себе роль менять нельзя
                                                                 onClick={() => toggleRole(user)}
                                                                 className={`text-xs disabled:opacity-30 disabled:hover:bg-transparent ${user.role === 'admin' ? 'font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20' : 'font-medium text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/20'}`}
                                                             >
                                                                 {user.role === 'admin' ? 'Demote to User' : 'Make Admin'}
                                                             </Button>
 
-                                                            {/* Кнопка удаления пользователя */}
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                disabled={isMe} // 👈 Себя удалить нельзя
+                                                                disabled={isMe} // Себя удалить нельзя
                                                                 onClick={() => deleteUser(user)}
                                                                 className="h-8 w-8 text-neutral-400 hover:text-red-600 hover:bg-red-50 dark:text-neutral-500 dark:hover:text-red-400 dark:hover:bg-red-950/20 transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-neutral-400"
                                                                 title={isMe ? "Вы не можете удалить свой собственный аккаунт" : "Удалить пользователя"}

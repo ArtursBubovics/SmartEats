@@ -17,9 +17,9 @@ interface RecipeFiltersProps {
     selectedGoal: string;
     setSelectedGoal: (value: string) => void;
 
-    // Новые пропсы для аллергенов
+    // Jaunie rekvizīti alergēniem / Новые пропсы для аллергенов
     availableAllergens: Allergen[];
-    selectedAllergens: number[]; // Массив ID аллергенов, которые надо исключить
+    selectedAllergens: number[]; // Alergēnu ID masīvs, kurus nepieciešams izslēgt / Массив ID аллергенов, которые надо исключить
     setSelectedAllergens: (ids: number[]) => void;
 }
 
@@ -34,7 +34,7 @@ export default function RecipeFilters({
     selectedGoal,
     setSelectedGoal,
     availableAllergens = [],
-    selectedAllergens= [],
+    selectedAllergens = [],
     setSelectedAllergens
 }: RecipeFiltersProps) {
     const locale = (typeof navigator !== 'undefined' && navigator.language && navigator.language.startsWith('lv')) ? 'lv' : 'en';
@@ -46,7 +46,7 @@ export default function RecipeFilters({
                 <span>{locale === 'lv' ? 'Filtri' : 'Filters'}</span>
             </div>
 
-            {/* Фильтр 1: Поиск по названию */}
+            {/* Filtrs 1: Meklēšana pēc nosaukuma / Фильтр 1: Поиск по названию */}
             <div className="mb-4">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mb-2">
                     {locale === 'lv' ? 'Meklēt recepti' : 'Search Recipes'}
@@ -63,7 +63,7 @@ export default function RecipeFilters({
                 </div>
             </div>
 
-            {/* Фильтр 2: Максимум калорий */}
+            {/* Filtrs 2: Maksimālās kalorijas / Фильтр 2: Максимум калорий */}
             <div className="mb-4 transition-all duration-200">
                 <div className="flex justify-between items-center mb-2">
                     <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
@@ -85,7 +85,7 @@ export default function RecipeFilters({
             </div>
 
 
-            {/* Фильтр 3: Сортировка */}
+            {/* Filtrs 3: Kārtošana / Фильтр 3: Сортировка */}
             <div className="mb-4">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mb-2">
                     {locale === 'lv' ? 'Kārtot pēc' : 'Sort by'}
@@ -101,7 +101,7 @@ export default function RecipeFilters({
                 </select>
             </div>
 
-            {/* Фильтр 3: Фитнес-цель (Тот самый селект, который мы добавили) */}
+            {/* Filtrs 4: Fitnesa mērķis (Tā pati izvēlne, kuru mēs pievienojām) / Фильтр 3: Фитнес-цель (Тот самый селект, который мы добавили) */}
             <div className="mb-3">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mb-2">
                     {locale === 'lv' ? 'Mērķis' : 'Goal'}
@@ -118,12 +118,13 @@ export default function RecipeFilters({
                 </select>
             </div>
 
-            {/* Фильтр 4: Аллергены */}
+            {/* Filtrs 5: Alergēni / Фильтр 4: Аллергены */}
             <div className="mt-5">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mb-2">
                     {locale === 'lv' ? 'Izvairīties No Alergēniem' : 'Avoid Allergens'}
                 </label>
-                <div className="max-h-[110px] overflow-y-auto pr-1 space-y-2 custom-scrollbar">                    {availableAllergens.map((allergen) => (
+                <div className="max-h-[110px] overflow-y-auto pr-1 space-y-2 custom-scrollbar">                    
+                    {availableAllergens.map((allergen) => (
                     <div key={allergen.id} className="flex items-center gap-2">
                         <input
                             type="checkbox"

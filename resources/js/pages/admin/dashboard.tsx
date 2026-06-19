@@ -23,17 +23,11 @@ interface AdminDashboardProps {
 export default function AdminDashboard() {
     const { auth, stats } = usePage<any>().props as AdminDashboardProps;
 
-    const breadcrumbs = [
-        { title: 'Admin', href: '/admin' },
-        { title: 'Dashboard', href: '#', current: true },
-    ];
-
     return (
         <>
             <Head title="Admin Dashboard" />
 
             <div className="flex flex-1 flex-col gap-6 p-6 md:p-4">
-                {/* Сетка основных показателей (Только самое важное) */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -57,7 +51,6 @@ export default function AdminDashboard() {
                         </CardContent>
                     </Card>
 
-                    {/* Карточка ошибок — оставили, так как это важный системный показатель */}
                     <Card className="border-emerald-200/60 dark:border-emerald-900/30 bg-emerald-50/10 dark:bg-emerald-950/5 flex flex-col justify-between">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-emerald-800 dark:text-emerald-400">User View</CardTitle>
@@ -77,7 +70,7 @@ export default function AdminDashboard() {
                     </Card>
                 </div>
 
-                {/* Основная рабочая зона админа */}
+                {/* Admina galvenā darba zona // Основная рабочая зона админа */}
                 <div className="grid gap-4 md:grid-cols-2">
 
                     <Card className="flex flex-col justify-between border-neutral-200/80 dark:border-neutral-800 shadow-sm">
@@ -100,7 +93,6 @@ export default function AdminDashboard() {
                         </CardContent>
                     </Card>
 
-                    {/* Блок Manage Users */}
                     <Card className="flex flex-col justify-between border-neutral-200/80 dark:border-neutral-800 shadow-sm">
                         <CardHeader>
                             <div className="flex items-center gap-2 mb-1">
